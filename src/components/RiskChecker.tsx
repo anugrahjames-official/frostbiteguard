@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Thermometer, Wind, AlertTriangle, Snowflake } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Thermometer, Wind, AlertTriangle, Snowflake, MapPin, Loader2 } from "lucide-react";
 import { calculateWindChill, getRiskLevel, getRiskInfo, getClothingRecommendations, type RiskLevel } from "@/lib/weather";
 import { toast } from "sonner";
 
@@ -10,6 +10,27 @@ const RiskChecker = () => {
     windChill: number;
     riskLevel: RiskLevel;
   } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: Math.round(pos.coords.latitude * 10000) / 10000, lon: Math.round(pos.coords.longitude * 10000) / 10000 });
+        setLocationLoading(false);
+      },
+      () => {
+        setLocationError("Location access denied.");
+        setLocationLoading(false);
+      }
+    );
+  }, []);
 
   const handleCheck = () => {
     const temp = parseFloat(temperature);
