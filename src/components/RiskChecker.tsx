@@ -74,6 +74,7 @@ const RiskChecker = () => {
               <span>{locationError || "Location unavailable"}</span>
             )}
           </div>
+        </div>
 
         {/* Input Form */}
         <div className="max-w-md mx-auto frost-glass rounded-2xl p-6 sm:p-8 mb-8">
