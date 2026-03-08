@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Thermometer, Wind, AlertTriangle, Snowflake } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Thermometer, Wind, AlertTriangle, Snowflake, MapPin, Loader2 } from "lucide-react";
 import { calculateWindChill, getRiskLevel, getRiskInfo, getClothingRecommendations, type RiskLevel } from "@/lib/weather";
 import { toast } from "sonner";
 
@@ -10,6 +10,27 @@ const RiskChecker = () => {
     windChill: number;
     riskLevel: RiskLevel;
   } | null>(null);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationLoading, setLocationLoading] = useState(false);
+  const [locationError, setLocationError] = useState("");
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocationLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setLocation({ lat: Math.round(pos.coords.latitude * 10000) / 10000, lon: Math.round(pos.coords.longitude * 10000) / 10000 });
+        setLocationLoading(false);
+      },
+      () => {
+        setLocationError("Location access denied.");
+        setLocationLoading(false);
+      }
+    );
+  }, []);
 
   const handleCheck = () => {
     const temp = parseFloat(temperature);
@@ -41,7 +62,18 @@ const RiskChecker = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-foreground mb-3">Frostbite Risk Checker</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Enter air temperature and wind speed to calculate wind chill and frostbite risk.</p>
+          <p className="text-muted-foreground max-w-xl mx-auto mb-4">Enter air temperature and wind speed to calculate wind chill and frostbite risk.</p>
+          {/* Location Display */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-secondary border border-border px-4 py-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 text-primary" />
+            {locationLoading ? (
+              <span className="flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" /> Detecting location...</span>
+            ) : location ? (
+              <span>Your location: <span className="font-medium text-foreground">{location.lat}°N, {location.lon}°E</span></span>
+            ) : (
+              <span>{locationError || "Location unavailable"}</span>
+            )}
+          </div>
         </div>
 
         {/* Input Form */}
