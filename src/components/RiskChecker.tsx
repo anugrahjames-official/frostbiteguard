@@ -62,8 +62,18 @@ const RiskChecker = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-foreground mb-3">Frostbite Risk Checker</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Enter air temperature and wind speed to calculate wind chill and frostbite risk.</p>
-        </div>
+          <p className="text-muted-foreground max-w-xl mx-auto mb-4">Enter air temperature and wind speed to calculate wind chill and frostbite risk.</p>
+          {/* Location Display */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-secondary border border-border px-4 py-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 text-primary" />
+            {locationLoading ? (
+              <span className="flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" /> Detecting location...</span>
+            ) : location ? (
+              <span>Your location: <span className="font-medium text-foreground">{location.lat}°N, {location.lon}°E</span></span>
+            ) : (
+              <span>{locationError || "Location unavailable"}</span>
+            )}
+          </div>
 
         {/* Input Form */}
         <div className="max-w-md mx-auto frost-glass rounded-2xl p-6 sm:p-8 mb-8">
